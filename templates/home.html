@@ -1,0 +1,7 @@
+{{ define "content" }}
+<ul>
+{{ range . }}
+    <li><a href="/view/{{.Title}}">{{.Title}}</a></li>
+{{ end }}
+</ul>
+{{ end }}
