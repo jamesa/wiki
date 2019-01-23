@@ -1,11 +1,14 @@
 package main
 
 import (
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+	"text/template"
+
+	"github.com/microcosm-cc/bluemonday"
+	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
 type Page struct {
@@ -25,7 +28,20 @@ func loadPage(title string) (*Page, error) {
 		log.Println("Error loading file")
 		return nil, err
 	}
-	return &Page{Title: title, Body: body}, nil
+	content := bluemonday.UGCPolicy().SanitizeBytes(body)
+	html := blackfriday.Run(content)
+	return &Page{Title: title, Body: html}, nil
+}
+
+func loadPageContent(title string) ([]byte, error) {
+	filename := title + ".md"
+	body, err := ioutil.ReadFile("pages/" + filename)
+	if err != nil {
+		log.Println("Error loading file")
+		return nil, err
+	}
+
+	return body, nil
 }
 
 func loadPages() ([]*Page, error) {
@@ -74,12 +90,16 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 
 func editHandler(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Path[len("/edit/"):]
-	p, err := loadPage(title)
+	content, err := loadPageContent(title)
+
 	if err != nil {
-		p = &Page{Title: title, Body: []byte("")}
+		content = []byte{}
+		log.Println(err)
 	}
 
-	renderTemplate(w, "edit", p)
+	page := &Page{Title: title, Body: content}
+
+	renderTemplate(w, "edit", page)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {

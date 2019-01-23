@@ -1,1 +1,3 @@
-This is a sample Page.
+# Heading
+
+This is a sample page.
