@@ -31,3 +31,13 @@ a:hover {
     margin: auto;
     padding: 1em;
 }
+
+table {
+    border-spacing: 0;
+}
+
+td {
+    border-bottom: 1px solid #333;
+    margin: 0;
+    padding: 2px;
+}

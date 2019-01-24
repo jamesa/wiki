@@ -28,8 +28,9 @@ func loadPage(title string) (*Page, error) {
 		log.Println("Error loading file")
 		return nil, err
 	}
-	content := bluemonday.UGCPolicy().SanitizeBytes(body)
-	html := blackfriday.Run(content)
+	content := blackfriday.Run(body)
+	html := bluemonday.UGCPolicy().SanitizeBytes(content)
+
 	return &Page{Title: title, Body: html}, nil
 }
 
