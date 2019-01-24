@@ -11,6 +11,7 @@ import (
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
+// Page is an editable page on the wiki
 type Page struct {
 	Title string
 	Body  []byte
@@ -24,10 +25,12 @@ func (p *Page) save() error {
 func loadPage(title string) (*Page, error) {
 	filename := title + ".md"
 	body, err := ioutil.ReadFile("pages/" + filename)
+
 	if err != nil {
-		log.Println("Error loading file")
+		log.Printf("Error loading file for page titled '%s'", title)
 		return nil, err
 	}
+
 	content := blackfriday.Run(body)
 	html := bluemonday.UGCPolicy().SanitizeBytes(content)
 
@@ -54,6 +57,11 @@ func loadPages() ([]*Page, error) {
 	}
 
 	for _, file := range files {
+		extension := file.Name()[strings.Index(file.Name(), "."):]
+		if extension != ".md" {
+			continue
+		}
+
 		title := file.Name()[:strings.Index(file.Name(), ".")]
 
 		page, err := loadPage(title)
